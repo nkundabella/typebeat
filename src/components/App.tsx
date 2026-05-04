@@ -98,6 +98,7 @@ export const App: React.FC = () => {
       {gameState === GameState.MENU && (
         <MenuScreen
           onPlayClick={handlePlayClick}
+          onSelectSong={handleSelectSong}
           personalBestWPM={personalBestWPM}
           gamesPlayed={gamesPlayed}
         />

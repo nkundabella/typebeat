@@ -31,6 +31,9 @@ export interface Song {
   audioUrl: string;
   requiredWPM?: number; // WPM needed to unlock
   locked?: boolean;
+  bpm: number;
+  difficulty: Difficulty;
+  coverArt?: string;
 }
 
 /**

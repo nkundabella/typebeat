@@ -11,55 +11,55 @@ export const SAMPLE_SONGS: Song[] = [
     title: 'Ethereal Dreams',
     artist: 'Cosmic Echo',
     genre: 'Synthwave',
-    lyrics: `In the neon glow of the midnight sky
-Where the stars dance and the dreams fly high
-I find myself lost in your eyes
-As the world around us slowly dies`,
+    lyrics: `In the neon glow of the midnight sky\nWhere the stars dance and the dreams fly high\nI find myself lost in your eyes\nAs the world around us slowly dies`,
     duration: 180,
     audioUrl: '/audio/ethereal-dreams.mp3',
     locked: false,
+    bpm: 120,
+    difficulty: Difficulty.BEGINNER,
+    coverArt: 'https://images.unsplash.com/photo-1614613535308-eb5fbd3d2c17?w=400&h=400&fit=crop'
   },
   {
     id: 'song_2',
     title: 'Digital Heart',
     artist: 'Synth Wave',
     genre: 'Electronic',
-    lyrics: `Circuits pulsing with electric dreams
-Nothing is ever what it seems
-Binary heartbeat in the code
-Following the digital road`,
+    lyrics: `Circuits pulsing with electric dreams\nNothing is ever what it seems\nBinary heartbeat in the code\nFollowing the digital road`,
     duration: 200,
     audioUrl: '/audio/digital-heart.mp3',
     requiredWPM: 40,
-    locked: true,
+    locked: false,
+    bpm: 140,
+    difficulty: Difficulty.INTERMEDIATE,
+    coverArt: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=400&h=400&fit=crop'
   },
   {
     id: 'song_3',
     title: 'Neon Knights',
     artist: 'Night Runner',
     genre: 'Synthwave',
-    lyrics: `Riding through the city streets so bright
-Neon knights of the endless night
-Chasing shadows and the morning light
-We are the legends of the fight`,
+    lyrics: `Riding through the city streets so bright\nNeon knights of the endless night\nChasing shadows and the morning light\nWe are the legends of the fight`,
     duration: 220,
     audioUrl: '/audio/neon-knights.mp3',
     requiredWPM: 60,
     locked: true,
+    bpm: 165,
+    difficulty: Difficulty.ADVANCED,
+    coverArt: 'https://images.unsplash.com/photo-1614613535308-eb5fbd3d2c17?w=400&h=400&fit=crop'
   },
   {
     id: 'song_4',
     title: 'Quantum Leap',
     artist: 'Future Pulse',
     genre: 'Electronic',
-    lyrics: `Jumping through dimensions of time and space
-Running at the quantum pace
-Every moment is a brand new place
-Where we find our saving grace`,
+    lyrics: `Jumping through dimensions of time and space\nRunning at the quantum pace\nEvery moment is a brand new place\nWhere we find our saving grace`,
     duration: 190,
     audioUrl: '/audio/quantum-leap.mp3',
     requiredWPM: 50,
     locked: true,
+    bpm: 155,
+    difficulty: Difficulty.INTERMEDIATE,
+    coverArt: 'https://images.unsplash.com/photo-1470225620780-dba8ba36b745?w=400&h=400&fit=crop'
   },
 ];
 
