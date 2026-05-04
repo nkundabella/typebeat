@@ -4,6 +4,8 @@ import { SongSelectionScreen } from './SongSelection';
 import { TypingGame } from './TypingGame';
 import { GameResults } from './GameResults';
 import { Layout } from './Layout';
+import { DashboardLayout } from './DashboardLayout';
+import { Sidebar } from './Sidebar';
 import { GameState } from '@/types';
 import type { Song, GameResult, TypingStats } from '@/types';
 import { getAllSongs } from '@/data/songs';
@@ -65,8 +67,34 @@ export const App: React.FC = () => {
     setSelectedSong(null);
   };
 
+  const sidebar = (
+    <Sidebar 
+      userStats={{
+        wpm: personalBestWPM || 65,
+        accuracy: 98.5,
+        level: 12 + gamesPlayed,
+        rank: gamesPlayed > 10 ? "Tempo Master" : "Rhythm Rookie",
+        streak: 5
+      }}
+    />
+  );
+
+  if (gameState === GameState.PLAYING && selectedSong) {
+    return (
+      <Layout>
+        <TypingGame
+          lyrics={selectedSong.lyrics}
+          songTitle={selectedSong.title}
+          artist={selectedSong.artist}
+          onComplete={handleGameComplete}
+          onBack={handleBackToMenu}
+        />
+      </Layout>
+    );
+  }
+
   return (
-    <Layout>
+    <DashboardLayout sidebar={sidebar}>
       {gameState === GameState.MENU && (
         <MenuScreen
           onPlayClick={handlePlayClick}
@@ -84,16 +112,6 @@ export const App: React.FC = () => {
         />
       )}
 
-      {gameState === GameState.PLAYING && selectedSong && (
-        <TypingGame
-          lyrics={selectedSong.lyrics}
-          songTitle={selectedSong.title}
-          artist={selectedSong.artist}
-          onComplete={handleGameComplete}
-          onBack={handleBackToMenu}
-        />
-      )}
-
       {gameState === GameState.FINISHED &&
         selectedSong &&
         lastGameStats && (
@@ -106,6 +124,6 @@ export const App: React.FC = () => {
             onBackToMenu={handleBackToMenu}
           />
         )}
-    </Layout>
+    </DashboardLayout>
   );
 };
