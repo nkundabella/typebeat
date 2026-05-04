@@ -1,0 +1,34 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Mystical background effects */
+body {
+  @apply bg-dark-bg text-white overflow-hidden;
+  background: linear-gradient(135deg, #0a0e27 0%, #1a1f3a 100%);
+}
+
+/* Smooth scrollbar styling */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  @apply bg-dark-bg;
+}
+
+::-webkit-scrollbar-thumb {
+  @apply bg-neon-cyan rounded;
+  box-shadow: 0 0 10px rgba(0, 240, 255, 0.5);
+}
+
+/* Selection styling */
+::selection {
+  @apply bg-neon-violet text-white;
+}
+
+/* Typing input focus state */
+input:focus {
+  outline: none;
+  box-shadow: 0 0 20px rgba(0, 240, 255, 0.5);
+}
