@@ -1,6 +1,7 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Button, Card } from './UI';
+import { Card } from './UI';
+import { HeroBanner } from './HeroBanner';
 
 interface MenuScreenProps {
   onPlayClick: () => void;
@@ -18,66 +19,48 @@ export const MenuScreen: React.FC<MenuScreenProps> = ({
 }) => {
   return (
     <motion.div
-      initial={{ opacity: 0, scale: 0.9 }}
-      animate={{ opacity: 1, scale: 1 }}
-      exit={{ opacity: 0, scale: 0.9 }}
-      className="space-y-8"
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: 20 }}
+      className="space-y-10"
     >
-      {/* Welcome Message */}
-      <motion.div
-        animate={{ y: [0, -10, 0] }}
-        transition={{ duration: 3, repeat: Infinity }}
-        className="text-center space-y-4"
-      >
-        <p className="text-neon-cyan text-xl font-light">Welcome Back</p>
-        <p className="text-white/70 text-lg max-w-2xl mx-auto">
-          Improve your typing skills by racing against the rhythm of music. Type
-          lyrics in sync with your favorite songs and master the art of fast,
-          accurate typing.
-        </p>
-      </motion.div>
+      {/* Hero Banner Section */}
+      <HeroBanner onSelectMode={(modeId) => {
+        if (modeId === 'beat' || modeId === 'speed') {
+          onPlayClick();
+        }
+      }} />
 
-      {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-2xl mx-auto">
-        <Card glow="cyan" className="text-center">
-          <div className="space-y-2">
-            <p className="text-neon-cyan/60 text-sm uppercase tracking-wider">
-              Personal Best
+      {/* Stats Cards Section (Moved below banner) */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <Card glow="cyan" className="flex items-center justify-between p-8 bg-dark-card/30 border-white/5">
+          <div className="space-y-1">
+            <p className="text-neon-cyan/60 text-xs uppercase tracking-[0.2em] font-bold">
+              Lifetime Best
             </p>
-            <p className="font-display text-4xl font-bold text-neon-cyan">
-              {personalBestWPM}
+            <p className="font-display text-5xl font-black text-white">
+              {personalBestWPM} <span className="text-xl text-white/30 uppercase font-bold">WPM</span>
             </p>
-            <p className="text-white/50 text-xs">Words Per Minute</p>
+          </div>
+          <div className="w-16 h-16 rounded-full bg-neon-cyan/10 flex items-center justify-center text-neon-cyan text-3xl">
+            🏆
           </div>
         </Card>
 
-        <Card glow="violet" className="text-center">
-          <div className="space-y-2">
-            <p className="text-neon-violet/60 text-sm uppercase tracking-wider">
-              Games Played
+        <Card glow="violet" className="flex items-center justify-between p-8 bg-dark-card/30 border-white/5">
+          <div className="space-y-1">
+            <p className="text-neon-violet/60 text-xs uppercase tracking-[0.2em] font-bold">
+              Total Sessions
             </p>
-            <p className="font-display text-4xl font-bold text-neon-violet">
-              {gamesPlayed}
+            <p className="font-display text-5xl font-black text-white">
+              {gamesPlayed} <span className="text-xl text-white/30 uppercase font-bold">Runs</span>
             </p>
-            <p className="text-white/50 text-xs">Total Sessions</p>
+          </div>
+          <div className="w-16 h-16 rounded-full bg-neon-violet/10 flex items-center justify-center text-neon-violet text-3xl">
+            ⌨️
           </div>
         </Card>
       </div>
-
-      {/* Main Action Button */}
-      <motion.div
-        whileHover={{ scale: 1.05 }}
-        className="flex justify-center"
-      >
-        <Button
-          onClick={onPlayClick}
-          variant="primary"
-          size="lg"
-          className="px-16"
-        >
-          ▶ Play Now
-        </Button>
-      </motion.div>
 
       {/* Features Preview */}
       <motion.div
