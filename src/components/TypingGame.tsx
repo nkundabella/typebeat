@@ -35,28 +35,37 @@ export const TypingGame: React.FC<TypingGameProps> = ({
   );
   const [elapsedTime, setElapsedTime] = useState(0);
   const [isGameComplete, setIsGameComplete] = useState(false);
+  const [gameStarted, setGameStarted] = useState(false);
 
   // Timer effect
   useEffect(() => {
-    if (isGameComplete) return;
+    if (isGameComplete || !gameStarted) return;
 
     const timer = setInterval(() => {
       setElapsedTime((prev) => prev + 1);
     }, 100);
 
     return () => clearInterval(timer);
-  }, [isGameComplete]);
+  }, [isGameComplete, gameStarted]);
 
   // Keyboard input handler
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (isGameComplete) return;
 
+      // Ignore modifier keys
+      if (e.ctrlKey || e.altKey || e.metaKey) return;
+
       if (e.key === 'Backspace') {
         e.preventDefault();
         engine.removeCharacter();
+      } else if (e.key === 'Enter') {
+        e.preventDefault();
+        if (!gameStarted) setGameStarted(true);
+        engine.addCharacter('\n');
       } else if (e.key.length === 1) {
         e.preventDefault();
+        if (!gameStarted) setGameStarted(true);
         engine.addCharacter(e.key);
       }
 
@@ -70,10 +79,10 @@ export const TypingGame: React.FC<TypingGameProps> = ({
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [engine, isGameComplete]);
+  }, [engine, isGameComplete, gameStarted]);
 
   const stats = engine.getStats();
-  const wpm = calculateWPM(stats.typedChars, elapsedTime / 10); // Convert centiseconds to seconds
+  const wpm = calculateWPM(stats.correctChars, elapsedTime / 10); // Use correctChars for Net WPM
   const accuracy = calculateAccuracy(stats.correctChars, stats.typedChars);
 
   const handleComplete = () => {
@@ -143,7 +152,7 @@ export const TypingGame: React.FC<TypingGameProps> = ({
       <Card glow="violet" className="min-h-32">
         <div className="space-y-4">
           {/* Target Text Highlight */}
-          <div className="text-2xl font-display leading-loose text-center">
+          <div className="text-2xl font-display leading-loose text-center whitespace-pre-wrap">
             {characterStates.map((char, idx) => (
               <span
                 key={idx}

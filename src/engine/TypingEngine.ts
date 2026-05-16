@@ -30,8 +30,14 @@ export class TypingEngine {
    */
   addCharacter(char: string): void {
     if (this.typedText.length < this.targetText.length) {
+      const index = this.typedText.length;
       this.typedText += char;
-      this.updateCharacterState();
+      
+      // Update specific character state
+      if (this.characterStates[index]) {
+        this.characterStates[index].typed = true;
+        this.characterStates[index].correct = char === this.targetText[index];
+      }
     }
   }
 
@@ -40,23 +46,13 @@ export class TypingEngine {
    */
   removeCharacter(): void {
     if (this.typedText.length > 0) {
+      const index = this.typedText.length - 1;
       this.typedText = this.typedText.slice(0, -1);
-      this.updateCharacterState();
-    }
-  }
-
-  /**
-   * Update character state based on current typed text
-   */
-  private updateCharacterState(): void {
-    for (let i = 0; i < this.characterStates.length; i++) {
-      if (i < this.typedText.length) {
-        this.characterStates[i].typed = true;
-        this.characterStates[i].correct =
-          this.typedText[i] === this.targetText[i];
-      } else {
-        this.characterStates[i].typed = false;
-        this.characterStates[i].correct = false;
+      
+      // Reset specific character state
+      if (this.characterStates[index]) {
+        this.characterStates[index].typed = false;
+        this.characterStates[index].correct = false;
       }
     }
   }

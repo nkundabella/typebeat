@@ -27,6 +27,8 @@ export const App: React.FC = () => {
   const [personalBestWPM, setPersonalBestWPM] = useState(0);
   const [gamesPlayed, setGamesPlayed] = useState(0);
   const [lastGameStats, setLastGameStats] = useState<GameStats | null>(null);
+  const [avgAccuracy, setAvgAccuracy] = useState(0);
+  const [streak, setStreak] = useState(0);
 
   const songs = getAllSongs();
 
@@ -43,6 +45,19 @@ export const App: React.FC = () => {
   const handleGameComplete = (stats: GameStats) => {
     setLastGameStats(stats);
     setGamesPlayed((prev) => prev + 1);
+    
+    // Update average accuracy
+    setAvgAccuracy((prev) => {
+      if (gamesPlayed === 0) return stats.accuracy;
+      return (prev * gamesPlayed + stats.accuracy) / (gamesPlayed + 1);
+    });
+
+    // Update streak (simplified)
+    if (stats.accuracy > 90) {
+      setStreak((prev) => prev + 1);
+    } else {
+      setStreak(0);
+    }
 
     // Update personal best
     if (stats.wpm > personalBestWPM) {
@@ -70,11 +85,11 @@ export const App: React.FC = () => {
   const sidebar = (
     <Sidebar 
       userStats={{
-        wpm: personalBestWPM || 65,
-        accuracy: 98.5,
-        level: 12 + gamesPlayed,
-        rank: gamesPlayed > 10 ? "Tempo Master" : "Rhythm Rookie",
-        streak: 5
+        wpm: personalBestWPM || 0,
+        accuracy: avgAccuracy || 0,
+        level: Math.floor(gamesPlayed / 5) + 1,
+        rank: gamesPlayed > 20 ? "Tempo Master" : gamesPlayed > 10 ? "Rhythm Pro" : "Rhythm Rookie",
+        streak: streak
       }}
     />
   );

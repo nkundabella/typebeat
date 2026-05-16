@@ -6,12 +6,13 @@ import type { TypingStats } from '@/types';
  * The division by 5 is industry standard (avg word length)
  */
 export function calculateWPM(
-  typedCharacters: number,
+  correctCharacters: number,
   elapsedTimeSeconds: number
 ): number {
-  if (elapsedTimeSeconds === 0) return 0;
+  if (elapsedTimeSeconds <= 0) return 0;
   
-  const words = typedCharacters / 5;
+  // Standard Net WPM: (correct_chars / 5) / minutes
+  const words = correctCharacters / 5;
   const minutes = elapsedTimeSeconds / 60;
   const wpm = words / minutes;
   
@@ -47,7 +48,7 @@ export function generateStats(
   elapsedTimeSeconds: number
 ): TypingStats {
   const incorrectChars = totalChars - correctChars;
-  const wpm = calculateWPM(totalChars, elapsedTimeSeconds);
+  const wpm = calculateWPM(correctChars, elapsedTimeSeconds);
   const accuracy = calculateAccuracy(correctChars, totalChars);
 
   return {
