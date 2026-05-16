@@ -4,6 +4,7 @@ import { Card } from './UI';
 import { HeroBanner } from './HeroBanner';
 import { getAllSongs } from '@/data/songs';
 import { TrackGrid } from './TrackGrid';
+import { StatsSection } from './StatsSection';
 
 interface MenuScreenProps {
   onPlayClick: () => void;
@@ -29,7 +30,7 @@ export const MenuScreen: React.FC<MenuScreenProps> = ({
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: 20 }}
-      className="space-y-12 pb-12"
+      className="space-y-12 pb-24"
     >
       {/* Hero Banner Section */}
       <HeroBanner onSelectMode={(modeId) => {
@@ -51,39 +52,8 @@ export const MenuScreen: React.FC<MenuScreenProps> = ({
         }} 
       />
 
-      {/* Lifetime Statistics */}
-      <div className="space-y-6">
-        <h2 className="text-2xl font-black tracking-tight text-white uppercase px-2">Lifetime Progress</h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <Card glow="cyan" className="flex items-center justify-between p-8 bg-dark-card/30 border-white/5">
-            <div className="space-y-1">
-              <p className="text-neon-cyan/60 text-xs uppercase tracking-[0.2em] font-bold">
-                Lifetime Best
-              </p>
-              <p className="font-display text-5xl font-black text-white">
-                {personalBestWPM} <span className="text-xl text-white/30 uppercase font-bold">WPM</span>
-              </p>
-            </div>
-            <div className="w-16 h-16 rounded-full bg-neon-cyan/10 flex items-center justify-center text-neon-cyan text-3xl">
-              🏆
-            </div>
-          </Card>
-
-          <Card glow="violet" className="flex items-center justify-between p-8 bg-dark-card/30 border-white/5">
-            <div className="space-y-1">
-              <p className="text-neon-violet/60 text-xs uppercase tracking-[0.2em] font-bold">
-                Total Sessions
-              </p>
-              <p className="font-display text-5xl font-black text-white">
-                {gamesPlayed} <span className="text-xl text-white/30 uppercase font-bold">Runs</span>
-              </p>
-            </div>
-            <div className="w-16 h-16 rounded-full bg-neon-violet/10 flex items-center justify-center text-neon-violet text-3xl">
-              ⌨️
-            </div>
-          </Card>
-        </div>
-      </div>
+      {/* Advanced Performance Stats */}
+      <StatsSection />
     </motion.div>
   );
 };
