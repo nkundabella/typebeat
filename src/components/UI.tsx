@@ -33,12 +33,15 @@ export const Button: React.FC<ButtonProps> = ({
     lg: 'px-8 py-4 text-lg',
   };
 
+  // Filter out event handlers that conflict with Framer Motion button props
+  const { onAnimationStart, onDragStart, onDragEnd, onDrag, ...safeProps } = props as any;
+
   return (
     <motion.button
       whileHover={{ scale: 1.05 }}
       whileTap={{ scale: 0.95 }}
       className={`${baseStyles} ${variants[variant]} ${sizes[size]} ${className}`}
-      {...props}
+      {...safeProps}
     >
       {children}
     </motion.button>

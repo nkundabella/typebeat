@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { MenuScreen } from './Menu';
 import { SongSelectionScreen } from './SongSelection';
 import { TypingGame } from './TypingGame';
@@ -7,8 +7,8 @@ import { Layout } from './Layout';
 import { DashboardLayout } from './DashboardLayout';
 import { Sidebar } from './Sidebar';
 import { GameState } from '@/types';
-import type { Song, GameResult, TypingStats } from '@/types';
-import { getAllSongs } from '@/data/songs';
+import type { Song } from '@/types';
+import { SAMPLE_SONGS } from '@/data/songs';
 
 interface GameStats {
   totalChars: number;
@@ -30,7 +30,41 @@ export const App: React.FC = () => {
   const [avgAccuracy, setAvgAccuracy] = useState(0);
   const [streak, setStreak] = useState(0);
 
-  const songs = getAllSongs();
+  const [songs, setSongs] = useState<Song[]>([]);
+
+  // Load songs and stats on mount
+  useEffect(() => {
+    fetchSongs();
+    fetchStats();
+  }, []);
+
+  const fetchSongs = async () => {
+    try {
+      const res = await fetch('http://localhost:5000/api/songs');
+      if (!res.ok) throw new Error('Failed to fetch songs from backend.');
+      const data = await res.json();
+      setSongs(data);
+    } catch (err) {
+      console.warn('Backend offline, using local starter songs fallback.');
+      setSongs(SAMPLE_SONGS);
+    }
+  };
+
+  const fetchStats = async () => {
+    try {
+      const res = await fetch('http://localhost:5000/api/scores/stats');
+      if (!res.ok) throw new Error('Failed to fetch stats');
+      const data = await res.json();
+      
+      if (data.stats) {
+        setGamesPlayed(data.stats.totalGamesPlayed);
+        setPersonalBestWPM(data.stats.personalBestWPM);
+        setAvgAccuracy(data.stats.averageAccuracy);
+      }
+    } catch (err) {
+      console.warn('Backend offline, running with local session statistics.');
+    }
+  };
 
   // Navigation handlers
   const handlePlayClick = () => {
@@ -42,26 +76,60 @@ export const App: React.FC = () => {
     setGameState(GameState.PLAYING);
   };
 
-  const handleGameComplete = (stats: GameStats) => {
+  const handleSongImported = (newSong: Song) => {
+    // Add new song to local state
+    setSongs((prev) => [newSong, ...prev]);
+    // Automatically select it and transition to the Typing Game
+    setSelectedSong(newSong);
+    setGameState(GameState.PLAYING);
+  };
+
+  const handleGameComplete = async (stats: GameStats) => {
     setLastGameStats(stats);
-    setGamesPlayed((prev) => prev + 1);
     
-    // Update average accuracy
+    // Local state fallback updates
+    setGamesPlayed((prev) => prev + 1);
     setAvgAccuracy((prev) => {
       if (gamesPlayed === 0) return stats.accuracy;
       return (prev * gamesPlayed + stats.accuracy) / (gamesPlayed + 1);
     });
 
-    // Update streak (simplified)
     if (stats.accuracy > 90) {
       setStreak((prev) => prev + 1);
     } else {
       setStreak(0);
     }
 
-    // Update personal best
     if (stats.wpm > personalBestWPM) {
       setPersonalBestWPM(stats.wpm);
+    }
+
+    // Submit score to PostgreSQL backend
+    if (selectedSong) {
+      const calculatedScore = Math.round(stats.wpm * 10 * (stats.accuracy / 100));
+      
+      try {
+        console.log(`Submitting score to PostgreSQL: ${calculatedScore}`);
+        const res = await fetch('http://localhost:5000/api/scores', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            songId: selectedSong.id,
+            wpm: stats.wpm,
+            accuracy: stats.accuracy,
+            score: calculatedScore
+          }),
+        });
+
+        if (res.ok) {
+          // Refresh aggregates and history from database
+          fetchStats();
+        }
+      } catch (err) {
+        console.warn('Failed to persist score to backend database. Session will remain locally active.', err);
+      }
     }
 
     setGameState(GameState.FINISHED);
@@ -101,6 +169,8 @@ export const App: React.FC = () => {
           lyrics={selectedSong.lyrics}
           songTitle={selectedSong.title}
           artist={selectedSong.artist}
+          audioUrl={selectedSong.audioUrl}
+          syncedLyrics={selectedSong.syncedLyrics}
           onComplete={handleGameComplete}
           onBack={handleBackToMenu}
         />
@@ -124,6 +194,7 @@ export const App: React.FC = () => {
           songs={songs}
           personalBestWPM={personalBestWPM}
           onSelectSong={handleSelectSong}
+          onSongImported={handleSongImported}
           onBack={handleBackToMenu}
         />
       )}
@@ -143,3 +214,4 @@ export const App: React.FC = () => {
     </DashboardLayout>
   );
 };
+

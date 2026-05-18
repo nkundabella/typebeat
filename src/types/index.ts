@@ -34,6 +34,7 @@ export interface Song {
   bpm: number;
   difficulty: Difficulty;
   coverArt?: string;
+  syncedLyrics?: string | null;
 }
 
 /**

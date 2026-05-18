@@ -1,6 +1,5 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Card } from './UI';
 import { HeroBanner } from './HeroBanner';
 import { getAllSongs } from '@/data/songs';
 import { TrackGrid } from './TrackGrid';
@@ -19,8 +18,6 @@ interface MenuScreenProps {
 export const MenuScreen: React.FC<MenuScreenProps> = ({
   onPlayClick,
   onSelectSong,
-  personalBestWPM,
-  gamesPlayed,
 }) => {
   const songs = getAllSongs();
   const trendingSongs = songs.slice(0, 3); // Just show top 3 for trending
