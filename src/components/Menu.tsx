@@ -10,6 +10,8 @@ interface MenuScreenProps {
   onSelectSong?: (song: any) => void;
   personalBestWPM: number;
   gamesPlayed: number;
+  scoreHistory: any[];
+  avgAccuracy: number;
 }
 
 /**
@@ -18,6 +20,10 @@ interface MenuScreenProps {
 export const MenuScreen: React.FC<MenuScreenProps> = ({
   onPlayClick,
   onSelectSong,
+  personalBestWPM,
+  gamesPlayed,
+  scoreHistory,
+  avgAccuracy,
 }) => {
   const songs = getAllSongs();
   const trendingSongs = songs.slice(0, 3); // Just show top 3 for trending
@@ -50,7 +56,12 @@ export const MenuScreen: React.FC<MenuScreenProps> = ({
       />
 
       {/* Advanced Performance Stats */}
-      <StatsSection />
+      <StatsSection 
+        scoreHistory={scoreHistory}
+        personalBestWPM={personalBestWPM}
+        gamesPlayed={gamesPlayed}
+        avgAccuracy={avgAccuracy}
+      />
     </motion.div>
   );
 };

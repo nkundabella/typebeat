@@ -31,6 +31,7 @@ export const App: React.FC = () => {
   const [streak, setStreak] = useState(0);
 
   const [songs, setSongs] = useState<Song[]>([]);
+  const [scoreHistory, setScoreHistory] = useState<any[]>([]);
 
   // Load songs and stats on mount
   useEffect(() => {
@@ -40,7 +41,7 @@ export const App: React.FC = () => {
 
   const fetchSongs = async () => {
     try {
-      const res = await fetch('http://localhost:5000/api/songs');
+      const res = await fetch('/api/songs');
       if (!res.ok) throw new Error('Failed to fetch songs from backend.');
       const data = await res.json();
       setSongs(data);
@@ -52,7 +53,7 @@ export const App: React.FC = () => {
 
   const fetchStats = async () => {
     try {
-      const res = await fetch('http://localhost:5000/api/scores/stats');
+      const res = await fetch('/api/scores/stats');
       if (!res.ok) throw new Error('Failed to fetch stats');
       const data = await res.json();
       
@@ -60,6 +61,9 @@ export const App: React.FC = () => {
         setGamesPlayed(data.stats.totalGamesPlayed);
         setPersonalBestWPM(data.stats.personalBestWPM);
         setAvgAccuracy(data.stats.averageAccuracy);
+      }
+      if (data.history) {
+        setScoreHistory(data.history);
       }
     } catch (err) {
       console.warn('Backend offline, running with local session statistics.');
@@ -110,7 +114,7 @@ export const App: React.FC = () => {
       
       try {
         console.log(`Submitting score to PostgreSQL: ${calculatedScore}`);
-        const res = await fetch('http://localhost:5000/api/scores', {
+        const res = await fetch('/api/scores', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -186,6 +190,8 @@ export const App: React.FC = () => {
           onSelectSong={handleSelectSong}
           personalBestWPM={personalBestWPM}
           gamesPlayed={gamesPlayed}
+          scoreHistory={scoreHistory}
+          avgAccuracy={avgAccuracy}
         />
       )}
 

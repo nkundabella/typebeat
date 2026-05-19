@@ -128,7 +128,7 @@ export const SongSelectionScreen: React.FC<SongSelectionScreenProps> = ({
     setSearchResults([]);
 
     try {
-      const response = await fetch(`http://localhost:5000/api/songs/search-external?q=${encodeURIComponent(searchQuery)}`);
+      const response = await fetch(`/api/songs/search-external?q=${encodeURIComponent(searchQuery)}`);
       if (!response.ok) {
         throw new Error('Failed to retrieve search results.');
       }
@@ -151,7 +151,7 @@ export const SongSelectionScreen: React.FC<SongSelectionScreenProps> = ({
     setImportError(null);
 
     try {
-      const response = await fetch('http://localhost:5000/api/songs/import', {
+      const response = await fetch('/api/songs/import', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
