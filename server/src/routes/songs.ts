@@ -74,7 +74,7 @@ router.post('/import', async (req: Request, res: Response) => {
       [title, artist]
     );
 
-    if (checkDuplicate.rowCount > 0) {
+    if (checkDuplicate.rowCount && checkDuplicate.rowCount > 0) {
       return res.status(400).json({ error: 'This song has already been imported!' });
     }
 

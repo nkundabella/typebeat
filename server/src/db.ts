@@ -81,42 +81,56 @@ const SAMPLE_SONGS_SEED = [
 ];
 
 export async function initializeDatabase() {
-  console.log('Connecting to PostgreSQL to check database status...');
+  const isCloudDb = baseDatabaseUrl.includes('neon.tech') || 
+                    baseDatabaseUrl.includes('supabase') || 
+                    baseDatabaseUrl.includes('render.com') || 
+                    baseDatabaseUrl.includes('elephantsql') ||
+                    baseDatabaseUrl.includes('aiven.io');
 
-  // Step 1: Connect to initial database (e.g. postgres) to verify if 'typebeat' database exists
-  const client = new Client({ connectionString: baseDatabaseUrl });
-  try {
-    await client.connect();
-    
-    // Check if 'typebeat' db exists
-    const dbCheck = await client.query("SELECT 1 FROM pg_database WHERE datname = 'typebeat'");
-    if (dbCheck.rowCount === 0) {
-      console.log("Database 'typebeat' does not exist. Creating it now...");
-      // In PostgreSQL, CREATE DATABASE cannot be executed inside a transaction block
-      await client.query("CREATE DATABASE typebeat");
-      console.log("Database 'typebeat' created successfully!");
-    } else {
-      console.log("Database 'typebeat' already exists.");
+  const sslOption = isCloudDb ? { rejectUnauthorized: false } : undefined;
+
+  console.log(`Database profile detected: ${isCloudDb ? 'Cloud-hosted Postgres' : 'Local Postgres'}`);
+
+  if (!isCloudDb) {
+    console.log('Running auto-creation check for local database...');
+    // Step 1: Connect to initial database (e.g. postgres) to verify if 'typebeat' database exists
+    const client = new Client({ connectionString: baseDatabaseUrl });
+    try {
+      await client.connect();
+      
+      // Check if 'typebeat' db exists
+      const dbCheck = await client.query("SELECT 1 FROM pg_database WHERE datname = 'typebeat'");
+      if (dbCheck.rowCount === 0) {
+        console.log("Database 'typebeat' does not exist. Creating it now...");
+        await client.query("CREATE DATABASE typebeat");
+        console.log("Database 'typebeat' created successfully!");
+      } else {
+        console.log("Database 'typebeat' already exists.");
+      }
+    } catch (error) {
+      console.error('Failed during database check/creation:', error);
+      throw error;
+    } finally {
+      await client.end();
     }
-  } catch (error) {
-    console.error('Failed during database check/creation:', error);
-    throw error;
-  } finally {
-    await client.end();
   }
 
-  // Step 2: Establish the main Connection Pool directly to the 'typebeat' database
-  const typebeatDbUrl = getDbUrlForDatabase(baseDatabaseUrl, 'typebeat');
-  console.log(`Connecting Pool to database: typebeat...`);
+  // Step 2: Establish the main Connection Pool directly to the database URL
+  // If it's local, we target 'typebeat'. If it's a cloud database (like Neon), we target their pre-defined database name
+  const targetDbUrl = isCloudDb ? baseDatabaseUrl : getDbUrlForDatabase(baseDatabaseUrl, 'typebeat');
+  console.log(`Establishing Connection Pool...`);
   
-  pool = new Pool({ connectionString: typebeatDbUrl });
+  pool = new Pool({ 
+    connectionString: targetDbUrl,
+    ssl: sslOption
+  });
 
-  // Test the new pool connection
+  // Test the pool connection
   try {
     const res = await pool.query('SELECT NOW()');
-    console.log('Successfully connected to typebeat database at:', res.rows[0].now);
+    console.log('Successfully connected to target database at:', res.rows[0].now);
   } catch (err) {
-    console.error('Error connecting to typebeat database pool:', err);
+    console.error('Error connecting to database pool:', err);
     throw err;
   }
 
