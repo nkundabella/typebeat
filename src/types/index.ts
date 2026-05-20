@@ -16,6 +16,7 @@ export enum GameState {
   PLAYING = 'playing',
   PAUSED = 'paused',
   FINISHED = 'finished',
+  PROFILE = 'profile',
 }
 
 /**

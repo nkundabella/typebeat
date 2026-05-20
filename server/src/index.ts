@@ -4,6 +4,7 @@ import dotenv from 'dotenv';
 import { initializeDatabase } from './db';
 import songRouter from './routes/songs';
 import scoreRouter from './routes/scores';
+import profileRouter from './routes/profile';
 
 dotenv.config();
 
@@ -22,6 +23,7 @@ app.use(express.json());
 // Routes
 app.use('/api/songs', songRouter);
 app.use('/api/scores', scoreRouter);
+app.use('/api/profile', profileRouter);
 
 // Health check endpoint
 app.get('/health', (req, res) => {

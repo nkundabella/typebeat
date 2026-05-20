@@ -86,4 +86,36 @@ router.get('/stats', async (req: Request, res: Response) => {
   }
 });
 
+/**
+ * DELETE /api/scores/:id
+ * Delete a specific score entry
+ */
+router.delete('/:id', async (req: Request, res: Response) => {
+  const { id } = req.params;
+  try {
+    const result = await pool.query('DELETE FROM scores WHERE id = $1 RETURNING *', [id]);
+    if (result.rowCount === 0) {
+      return res.status(404).json({ error: 'Score record not found.' });
+    }
+    return res.json({ message: 'Score record deleted successfully!' });
+  } catch (error) {
+    console.error('Error deleting score:', error);
+    return res.status(500).json({ error: 'Failed to delete score record.' });
+  }
+});
+
+/**
+ * DELETE /api/scores
+ * Clear complete score history
+ */
+router.delete('/', async (req: Request, res: Response) => {
+  try {
+    await pool.query('DELETE FROM scores');
+    return res.json({ message: 'Entire score history cleared successfully!' });
+  } catch (error) {
+    console.error('Error clearing score history:', error);
+    return res.status(500).json({ error: 'Failed to clear score history.' });
+  }
+});
+
 export default router;

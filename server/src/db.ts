@@ -170,6 +170,26 @@ export async function initializeDatabase() {
       )
     `);
 
+    // Profiles Table
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS profiles (
+        id INT PRIMARY KEY DEFAULT 1 CHECK (id = 1),
+        username VARCHAR(100) DEFAULT 'William_Prime',
+        avatar_seed VARCHAR(100) DEFAULT 'Felix',
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      )
+    `);
+
+    // Seed default profile if table is empty
+    const profileCountRes = await pool.query('SELECT COUNT(*) FROM profiles');
+    if (parseInt(profileCountRes.rows[0].count, 10) === 0) {
+      await pool.query(`
+        INSERT INTO profiles (id, username, avatar_seed) 
+        VALUES (1, 'William_Prime', 'Felix')
+      `);
+      console.log('Default profile successfully seeded!');
+    }
+
     console.log('Database tables verified/created successfully.');
 
     // Step 4: Seed Sample Songs if the songs table is empty
