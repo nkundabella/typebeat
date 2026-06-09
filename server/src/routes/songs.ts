@@ -1,6 +1,9 @@
 import { Router, Request, Response } from 'express';
 import { pool } from '../db';
 import { searchiTunes, fetchLyricsFromLRCLib } from '../services/lyricService';
+import { logger } from '../services/logger';
+import { validate } from '../middlewares/validate';
+import { z } from 'zod';
 
 const router = Router();
 
@@ -47,11 +50,11 @@ router.get('/search-external', async (req: Request, res: Response) => {
   }
 
   try {
-    console.log(`Searching online for: "${query}"`);
+    logger.info(`Searching online for: "${query}"`);
     const results = await searchiTunes(query);
     return res.json(results);
   } catch (error) {
-    console.error('Error searching external songs:', error);
+    logger.error('Error searching external songs:', error);
     return res.status(500).json({ error: 'Failed to search songs online.' });
   }
 });
@@ -60,7 +63,7 @@ router.get('/search-external', async (req: Request, res: Response) => {
  * POST /api/songs/import
  * Import a song from iTunes, fetch its lyrics from LRCLib, and save to Postgres
  */
-router.post('/import', async (req: Request, res: Response) => {
+router.post('/import', validate(z.object({ body: z.object({ title: z.string(), artist: z.string(), album: z.string().optional(), genre: z.string().optional(), duration: z.number().optional(), audioUrl: z.string().url(), coverArt: z.string().url().optional() }) })), async (req: Request, res: Response) => {
   const { title, artist, album, genre, duration, audioUrl, coverArt } = req.body;
 
   if (!title || !artist || !audioUrl) {
@@ -79,7 +82,7 @@ router.post('/import', async (req: Request, res: Response) => {
     }
 
     // 2. Fetch lyrics from LRCLib
-    console.log(`Importing: "${title}" by "${artist}". Retrieving lyrics...`);
+    logger.info(`Importing: "${title}" by "${artist}". Retrieving lyrics...`);
     const lyricsData = await fetchLyricsFromLRCLib(artist, title, album || '', duration || 180);
 
     if (!lyricsData.plainLyrics) {
@@ -98,7 +101,7 @@ router.post('/import', async (req: Request, res: Response) => {
     const difficulty = duration < 120 ? 'beginner' : duration > 240 ? 'advanced' : 'intermediate';
 
     // 5. Insert into the PostgreSQL database
-    console.log(`Inserting imported song "${title}" into PostgreSQL...`);
+    logger.info(`Inserting imported song "${title}" into PostgreSQL...`);
     await pool.query(`
       INSERT INTO songs (
         id, title, artist, genre, lyrics, synced_lyrics, duration, 
@@ -120,7 +123,7 @@ router.post('/import', async (req: Request, res: Response) => {
       coverArt || 'https://images.unsplash.com/photo-1470225620780-dba8ba36b745?w=400&h=400&fit=crop'
     ]);
 
-    console.log(`Successfully imported "${title}" by "${artist}"!`);
+    logger.info(`Successfully imported "${title}" by "${artist}"!`);
 
     return res.status(201).json({
       message: 'Song imported successfully!',
@@ -142,7 +145,7 @@ router.post('/import', async (req: Request, res: Response) => {
     });
 
   } catch (error) {
-    console.error('Error importing song:', error);
+    logger.error('Error importing song:', error);
     return res.status(500).json({ error: 'Failed to import song and retrieve lyrics.' });
   }
 });
